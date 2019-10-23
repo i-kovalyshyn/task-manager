@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.springframework.http.ResponseEntity.ok;
+
 @RestController
 @RequestMapping("user")
 @SessionAttributes("jwt_token")
@@ -23,17 +25,18 @@ public class UserController {
 
     @PostMapping(value = "/register")
     @ModelAttribute("jwt_token")
-    public String register(@RequestBody User user) {
+    public ResponseEntity<String> register(@RequestBody User user) {
         userService.save(user);
-        return userService.generateToken(user);
+        String token = userService.generateToken(user);
+        return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<String> login(@SessionAttribute("jwt_token") String token) {
+    public ResponseEntity<String> login(@SessionAttribute("jwt_token") ResponseEntity<String> token) {
 
         ResponseEntity<String> responseEntity = new ResponseEntity<>("Register, please", HttpStatus.FORBIDDEN);
 
-        if (userService.validateToken(token)) {
+        if (userService.validateToken(token.getBody())) {
             responseEntity = new ResponseEntity<>("Hello", HttpStatus.OK);
         }
 

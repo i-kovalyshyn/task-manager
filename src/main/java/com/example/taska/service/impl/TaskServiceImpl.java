@@ -40,6 +40,8 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId).get();
 
         user.getTasks().add(task);
+
+        userRepository.save(user);
     }
 
     @Override
