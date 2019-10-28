@@ -7,10 +7,12 @@ import com.example.taska.repository.TaskRepository;
 import com.example.taska.repository.UserRepository;
 import com.example.taska.service.TaskService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
@@ -36,12 +38,11 @@ public class TaskServiceImpl implements TaskService {
         String email = taskDTO.getEmail();
         int taskId = taskDTO.getTaskId();
 
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email);//update with join
         Task task = taskRepository.findById(taskId).get();
 
-        user.getTasks().add(task);
+        task.setUser(user);
 
-        userRepository.save(user);
     }
 
     @Override

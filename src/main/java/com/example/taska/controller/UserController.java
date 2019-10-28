@@ -2,17 +2,17 @@ package com.example.taska.controller;
 
 import com.example.taska.domain.User;
 import com.example.taska.dto.TaskDTO;
+import com.example.taska.dto.UserDTO;
 import com.example.taska.service.TaskService;
 import com.example.taska.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.http.ResponseEntity.ok;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("user")
-@SessionAttributes("jwt_token")
 public class UserController {
 
     private final UserService userService;
@@ -24,36 +24,24 @@ public class UserController {
     }
 
     @PostMapping(value = "/register")
-    @ModelAttribute("jwt_token")
-    public ResponseEntity<String> register(@RequestBody User user) {
+    public String register(@RequestBody User user) {
         userService.save(user);
-        String token = userService.generateToken(user);
-        return new ResponseEntity<>(token, HttpStatus.OK);
+        return userService.generateToken(user);
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<String> login(@SessionAttribute("jwt_token") ResponseEntity<String> token) {
+    public ResponseEntity<String> login(@RequestBody UserDTO userDTO, HttpServletRequest request) {
 
         ResponseEntity<String> responseEntity = new ResponseEntity<>("Register, please", HttpStatus.FORBIDDEN);
 
-        if (userService.validateToken(token.getBody())) {
+        String jwtToken = request.getHeader("Authorization").replaceAll("Bearer ", "");
+
+        if (userService.validateToken(jwtToken) && userService.existUserWithGivenEmailAndPassword(userDTO)) {
             responseEntity = new ResponseEntity<>("Hello", HttpStatus.OK);
         }
 
         return responseEntity;
     }
-/*
-    @PostMapping(value = "/login")
-    public ResponseEntity<String> login2(@SessionAttribute("jwt_token") String token) {
-
-
-        if (userService.validateToken(token)) {
-            return new ResponseEntity<>("Hello", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Register, please", HttpStatus.FORBIDDEN);
-        }
-
-    }*/
 
 
     @PutMapping(value = "/share/task")

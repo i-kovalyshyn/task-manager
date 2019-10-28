@@ -1,6 +1,7 @@
 package com.example.taska.service.impl;
 
 import com.example.taska.domain.User;
+import com.example.taska.dto.UserDTO;
 import com.example.taska.repository.UserRepository;
 import com.example.taska.service.UserService;
 import com.example.taska.service.WebTokenService;
@@ -28,7 +29,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteById(int id) {
         userRepository.deleteById(id);
-
     }
 
     @Override
@@ -45,5 +45,10 @@ public class UserServiceImpl implements UserService {
         String password = String.valueOf(claims.get("password"));
 
         return userRepository.existsByNameAndPassword(name, password);
+    }
+
+    @Override
+    public boolean existUserWithGivenEmailAndPassword(UserDTO userDTO) {
+        return userRepository.existsByEmailAndPassword(userDTO.getEmail(), userDTO.getPassword());
     }
 }
